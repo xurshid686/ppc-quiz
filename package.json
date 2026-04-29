@@ -1,0 +1,14 @@
+{
+  "name": "ppc-quiz",
+  "version": "1.0.0",
+  "description": "Present Perfect Continuous quiz with global leaderboard",
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "@upstash/redis": "^1.34.0"
+  },
+  "engines": {
+    "node": "18.x"
+  }
+}
