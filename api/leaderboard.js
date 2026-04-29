@@ -8,10 +8,18 @@ const redis = new Redis({
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
 
-  const raw = await redis.zrange("quiz:scores", 0, 19, { rev: true });
-  const scores = raw.map((item) => {
+  // Get top 20 entries by score descending
+  const raw = await redis.zrange("quiz:scores", "+inf", "-inf", {
+    byScore: true,
+    rev: true,
+    offset: 0,
+    count: 20,
+  });
+
+  const scores = (raw || []).map((item) => {
     try {
-      return typeof item === "string" ? JSON.parse(item) : item;
+      const parsed = typeof item === "string" ? JSON.parse(item) : item;
+      return { name: parsed.name, score: parsed.score, date: parsed.date };
     } catch {
       return { name: "Unknown", score: 0, date: "" };
     }

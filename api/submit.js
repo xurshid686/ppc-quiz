@@ -33,8 +33,12 @@ export default async function handler(req, res) {
     hour: "2-digit", minute: "2-digit",
   });
 
-  const member = JSON.stringify({ name, score, date });
-  await redis.zadd("quiz:scores", { score: score, member });
+  // Use timestamp to make each entry unique so all submissions are stored
+  const member = JSON.stringify({ name, score, date, ts: Date.now() });
+
+  // Store with a composite score: score * 1e13 + (1e13 - ts) so highest score first, then earliest time
+  const sortKey = score * 1e13 + (1e13 - Date.now());
+  await redis.zadd("quiz:scores", { score: sortKey, member });
 
   const emoji = score >= 18 ? "🏆" : score >= 14 ? "✅" : score >= 10 ? "⚠️" : "❌";
   const msg =
