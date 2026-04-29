@@ -8,22 +8,20 @@ const redis = new Redis({
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
 
-  // Get top 20 entries by score descending
-  const raw = await redis.zrange("quiz:scores", "+inf", "-inf", {
-    byScore: true,
-    rev: true,
-    offset: 0,
-    count: 20,
-  });
+  // Get all entries (up to 200)
+  const raw = await redis.lrange("quiz:results", 0, 199);
 
-  const scores = (raw || []).map((item) => {
+  const all = (raw || []).map((item) => {
     try {
-      const parsed = typeof item === "string" ? JSON.parse(item) : item;
-      return { name: parsed.name, score: parsed.score, date: parsed.date };
+      return typeof item === "string" ? JSON.parse(item) : item;
     } catch {
-      return { name: "Unknown", score: 0, date: "" };
+      return null;
     }
-  });
+  }).filter(Boolean);
 
-  return res.status(200).json({ scores });
+  // Sort by score descending, then show top 20
+  all.sort((a, b) => b.score - a.score);
+  const top20 = all.slice(0, 20);
+
+  return res.status(200).json({ scores: top20 });
 }
