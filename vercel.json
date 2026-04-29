@@ -1,0 +1,16 @@
+{
+  "functions": {
+    "api/leaderboard.js": {
+      "runtime": "nodejs18.x"
+    },
+    "api/submit.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "/index.html"
+    }
+  ]
+}
